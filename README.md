@@ -1,36 +1,41 @@
-# zyt
+# ZYT
 
 Time tools. Built with Go.
 
-## Data model
+## Models
 ```
+users
+.id           uuid
+.email        
+.password   
+
+stories
+.id           uuid
+.user_id      uuid
+.name         string 
+
 events
 .id           uuid
 .user_id      uuid
-.activity_id  uuid      null
-.start        datetime
-.end          datetime
-.duration     int
+.story_id     uuid null
+.start_time   timestamp
+.end_time     timestamp null
+.duration     interval null
 
 tags
 .id           uuid
 .user_id      uuid
-.code         string
 .name         string
+
+story_tag
+.id           uuid
+.story_id     uuid
+.tag_id       uuid 
 
 event_tag
 .id           uuid
 .event_id     uuid
-.tag_id       uuid
-
-activity
-.id           uuid
-.name         string
-
-users
-.id           uuid
-.email        
-.password     
+.tag_id       uuid 
 ```
 
 ## Command line
