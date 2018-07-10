@@ -1,4 +1,4 @@
-package routes
+package route
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// Controller defines a controller
+// Controller defines a collection of routes and handlers
 type Controller interface {
 	Route(*Server)
 }

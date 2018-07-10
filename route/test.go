@@ -1,38 +1,38 @@
-package routes
+package route
 
 import (
 	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/nikovacevic/zyt-api/models"
+	"github.com/nikovacevic/zyt-api/model"
 )
 
-// Test handles all testing routes
-type Test struct{}
+// TestController handles all testing routes
+type TestController struct{}
 
-// TestRoutes creates a Test controller and applies the routes to the given Server
-func TestRoutes(srv *Server) {
-	NewTest().Route(srv)
+// ApplyTestController creates a Test controller and applies the routes to the given Server
+func ApplyTestController(srv *Server) {
+	NewTestController().Route(srv)
 }
 
-// NewTest creates a new Test controller
-func NewTest() *Test {
-	return &Test{}
+// NewTestController creates a new TestController
+func NewTestController() *TestController {
+	return &TestController{}
 }
 
 // Route applies routes to the given Router
-func (tc *Test) Route(srv *Server) {
+func (tc *TestController) Route(srv *Server) {
 	srv.router.HandleFunc("/api/status", tc.Status()).Methods("GET")
 	srv.router.HandleFunc("/api/teapot", tc.Teapot()).Methods("GET")
 	srv.router.HandleFunc("/api/parrot/{message}", tc.Parrot()).Methods("GET")
 }
 
 // Status returns the API status
-func (tc *Test) Status() http.HandlerFunc {
+func (tc *TestController) Status() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		WriteJSON(w, &models.Response{
+		WriteJSON(w, &model.Response{
 			Errors:  nil,
 			Message: "All good",
 		})
@@ -40,10 +40,10 @@ func (tc *Test) Status() http.HandlerFunc {
 }
 
 // Teapot returns the 418 I'm a teapot HTTP status
-func (tc *Test) Teapot() http.HandlerFunc {
+func (tc *TestController) Teapot() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusTeapot)
-		WriteJSON(w, &models.Response{
+		WriteJSON(w, &model.Response{
 			Errors: []error{
 				fmt.Errorf("I'm a teapot"),
 			},
@@ -53,7 +53,7 @@ func (tc *Test) Teapot() http.HandlerFunc {
 }
 
 // Parrot repeats what you said
-func (tc *Test) Parrot() http.HandlerFunc {
+func (tc *TestController) Parrot() http.HandlerFunc {
 	// This only happens once
 	fmt.Printf("Parrot is booting up\n")
 	// Then the HandlerFunc is returned to run indefinitely
@@ -61,7 +61,7 @@ func (tc *Test) Parrot() http.HandlerFunc {
 		fmt.Printf("Quiet! Parrot is talking!\n")
 		vars := mux.Vars(r)
 		payload := vars["message"]
-		WriteJSON(w, &models.Response{
+		WriteJSON(w, &model.Response{
 			Errors:  nil,
 			Message: "Parrot is talking",
 			Payload: payload,
