@@ -1,19 +1,19 @@
-package route
+package http
 
 import (
 	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/nikovacevic/zyt-api/model"
+	"github.com/nikovacevic/zyt/internal/app/zyt"
 )
 
 // TestController handles all testing routes
 type TestController struct{}
 
 // ApplyTestController creates a Test controller and applies the routes to the given Server
-func ApplyTestController(srv *Server) {
-	NewTestController().Route(srv)
+func ApplyTestController(server *Server) {
+	NewTestController().Route(server)
 }
 
 // NewTestController creates a new TestController
@@ -22,17 +22,17 @@ func NewTestController() *TestController {
 }
 
 // Route applies routes to the given Router
-func (tc *TestController) Route(srv *Server) {
-	srv.router.HandleFunc("/api/status", tc.Status()).Methods("GET")
-	srv.router.HandleFunc("/api/teapot", tc.Teapot()).Methods("GET")
-	srv.router.HandleFunc("/api/parrot/{message}", tc.Parrot()).Methods("GET")
+func (tc *TestController) Route(server *Server) {
+	server.HandleFunc("/api/status", tc.Status()).Methods("GET")
+	server.HandleFunc("/api/teapot", tc.Teapot()).Methods("GET")
+	server.HandleFunc("/api/parrot/{message}", tc.Parrot()).Methods("GET")
 }
 
 // Status returns the API status
 func (tc *TestController) Status() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		WriteJSON(w, &model.Response{
+		WriteJSON(w, &zyt.Response{
 			Errors:  nil,
 			Message: "All good",
 		})
@@ -43,7 +43,7 @@ func (tc *TestController) Status() http.HandlerFunc {
 func (tc *TestController) Teapot() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusTeapot)
-		WriteJSON(w, &model.Response{
+		WriteJSON(w, &zyt.Response{
 			Errors: []error{
 				fmt.Errorf("I'm a teapot"),
 			},
@@ -61,7 +61,7 @@ func (tc *TestController) Parrot() http.HandlerFunc {
 		fmt.Printf("Quiet! Parrot is talking!\n")
 		vars := mux.Vars(r)
 		payload := vars["message"]
-		WriteJSON(w, &model.Response{
+		WriteJSON(w, &zyt.Response{
 			Errors:  nil,
 			Message: "Parrot is talking",
 			Payload: payload,

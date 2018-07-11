@@ -1,4 +1,4 @@
-CREATE TABLE events (
+CREATE TABLE IF NOT EXISTS events (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   story_id uuid DEFAULT NULL,
   user_id uuid NOT NULL,

@@ -1,4 +1,4 @@
-package route
+package http
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 
 // Controller defines a collection of routes and handlers
 type Controller interface {
-	Route(*Server)
+	Route(*http.Server)
 }
 
 // WriteJSON writes JSON to the given ResponseWriter

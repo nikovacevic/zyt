@@ -1,4 +1,4 @@
-package store
+package postgres
 
 import (
 	"database/sql"
@@ -12,8 +12,8 @@ type DB struct {
 }
 
 // NewDB connects to a database, tests the connection, and returns a connection pool
-func NewDB(driverName, dataSourceName string) (*DB, error) {
-	db, err := sql.Open(driverName, dataSourceName)
+func NewDB(dataSourceName string) (*DB, error) {
+	db, err := sql.Open("postgres", dataSourceName)
 	if err != nil {
 		return nil, err
 	}

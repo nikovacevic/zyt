@@ -1,4 +1,4 @@
-package model
+package zyt
 
 import (
 	"encoding/json"
