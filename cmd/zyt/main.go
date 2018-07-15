@@ -3,23 +3,22 @@ package main
 import (
 	"os"
 
-	"github.com/nikovacevic/zyt/internal/app/zyt/http"
-	"github.com/nikovacevic/zyt/internal/app/zyt/postgres"
+	"github.com/nikovacevic/zyt/internal/pkg/err"
+	"github.com/nikovacevic/zyt/internal/pkg/http"
 	"github.com/nikovacevic/zyt/internal/pkg/log"
+	"github.com/nikovacevic/zyt/internal/pkg/postgres"
 )
 
 func main() {
 	logger := log.NewLogger(os.Stdout)
 
+	errorService := err.NewService(logger)
+
 	cnf, err := postgres.GetConfig("../..")
-	if err != nil {
-		logger.Fatalf("Failed to load configuration: %v\n", err.Error())
-	}
+	errorService.CheckAndFatal(err)
 
 	db, err := postgres.NewDB(*cnf)
-	if err != nil {
-		logger.Fatalf("Failed to connect to database: %v\n", err.Error())
-	}
+	errorService.CheckAndFatal(err)
 
 	server := http.NewServer()
 	http.NewAuthController(db, logger).Route(server)
