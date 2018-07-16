@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config stores configuration setting for connecting to Postgres DB
+// Config stores configuration settings for connecting to Postgres DB
 type Config struct {
 	Host     string
 	Port     string

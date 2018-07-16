@@ -1,7 +1,10 @@
-# Database
-Host = "localhost"
-Port = "5432"
-Name = ""
-Username = ""
-Password = ""
-Params = ""
+[database]
+host = "localhost"
+port = "5432"
+name = ""
+username = ""
+password = ""
+params = ""
+
+[jwt]
+key = ""

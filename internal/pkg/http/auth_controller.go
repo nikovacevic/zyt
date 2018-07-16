@@ -10,15 +10,19 @@ import (
 
 // AuthController handles all user routes
 type AuthController struct {
-	AuthService zyt.AuthService
-	logger      *log.Logger
+	AuthService  zyt.AuthService
+	ErrorService zyt.ErrorService
+	TokenService zyt.TokenService
+	logger       *log.Logger
 }
 
 // NewAuthController creates a new User controller
-func NewAuthController(as zyt.AuthService, logger *log.Logger) *AuthController {
+func NewAuthController(as zyt.AuthService, es zyt.ErrorService, ts zyt.TokenService, logger *log.Logger) *AuthController {
 	return &AuthController{
-		AuthService: as,
-		logger:      logger,
+		AuthService:  as,
+		ErrorService: es,
+		TokenService: ts,
+		logger:       logger,
 	}
 }
 
@@ -34,13 +38,8 @@ func (ac *AuthController) Authenticate() http.Handler {
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 
-		// TODO remove
-		ac.logger.Log(log.INFO, "email: %s, password: %s", email, password)
-
 		user, err := ac.AuthService.AuthenticateUser(email, password)
-		if err != nil {
-			ac.logger.Log(log.ERROR, err.Error())
-		}
+		ac.ErrorService.CheckAndLog(err)
 		if user == nil {
 			WriteJSON(w, &zyt.Response{
 				Errors:  []error{fmt.Errorf("Incorrect username and password combination")},
@@ -50,15 +49,25 @@ func (ac *AuthController) Authenticate() http.Handler {
 			return
 		}
 
-		mockJWT := []byte("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vYXV0aGVudGljYXRpb24uc2VydmVyLmlvIiwic3ViIjoiMzQ3NTgyMzQ1MzQ1IiwibmFtZSI6IkJydWNlIFNjaG5laWVyIiwiZW1haWwiOiJicnVjZUBzY2huZWllci5pbyIsInRvdGFsX2Jvc3MiOnRydWUsImdlbml1c19sZXZlbCI6ImV4Y2VwdGlvbmFsIn0.0tp9kl09DqT53M1AxzvRFaKCZIa_nlLv9nvg-3uMvkU")
+		token, err := ac.TokenService.GenerateToken(user)
+		ac.ErrorService.CheckAndLog(err)
+		if token == "" {
+			WriteJSON(w, &zyt.Response{
+				Errors:  []error{fmt.Errorf("Cannot issue access token")},
+				Message: "Cannot issue access token",
+				Payload: nil,
+			})
+			return
+		}
+
 		WriteJSON(w, &zyt.Response{
 			Message: fmt.Sprintf("Authentication succeeded"),
 			Payload: struct {
 				User interface{} `json:"user"`
-				JWT  []byte      `json:"jwt"`
+				JWT  string      `json:"jwt"`
 			}{
 				user,
-				mockJWT,
+				token,
 			},
 		})
 		return
