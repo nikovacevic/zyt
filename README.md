@@ -2,43 +2,44 @@
 
 Time tools. Built with Go.
 
-## Models
-```
-users
-.id           uuid
-.email        
-.password   
+## Taxonomy
 
-stories
-.id           uuid
-.user_id      uuid
-.name         string 
+ZYT's most basic record type is **events**, which describe an individual, indivisible entry of time. Events can be grouped using two different composite structures: **stories** and **tags**. Stories are intended to have a narrative, to which each event contributes. Tags are intended to cluster related events without expectation of a narrative, optionally providing functionality. Topologically, they are identical in that both tags and stories relate to events in a many-to-many style. As such, events can belong to multiple stories and have multiple tags; likewise, stories and tags should each contain multiple events.
 
-events
-.id           uuid
-.user_id      uuid
-.story_id     uuid null
-.start_time   timestamp
-.end_time     timestamp null
-.duration     interval null
+### events
+- start time
+- end time
+- duration
+- name
+- notes
+- relationships
+  - users: one
+  - stories: many
+  - tags: many
 
-tags
-.id           uuid
-.user_id      uuid
-.name         string
+### stories
+- start time
+- end time
+- duration
+- name
+- notes
+- relationships
+  - users: one
+  - events: many
 
-story_tag
-.id           uuid
-.story_id     uuid
-.tag_id       uuid 
+### tags
+- name
+- function
+- relationships
+  - users: one
+  - events: many
+- examples
+  - name: Pro Bono
+  - name: Company, Inc.
+  - name: Standard Rate; function: `rate = 120 * (duration * 60 * 60)`
+  - name: Discount; function: `rate *= 0.75`
 
-event_tag
-.id           uuid
-.event_id     uuid
-.tag_id       uuid 
-```
-
-## Command line
+## Commands
 ```
 zyt
   
