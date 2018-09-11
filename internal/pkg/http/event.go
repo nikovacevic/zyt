@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 	"github.com/nikovacevic/zyt/internal/app/zyt"
 	"github.com/nikovacevic/zyt/internal/pkg/log"
 )
@@ -37,38 +36,26 @@ func (ec *EventController) Route(server *Server) {
 // ViewEvent retrieves and shows an Event
 func (ec *EventController) ViewEvent() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id, err := uuid.Parse(vars["id"])
-		if err != nil {
-			ec.logger.Printf("ERROR: failed to parse ID\n")
-			fmt.Println(err)
-			WriteJSON(w, &zyt.Response{
-				Errors:  []error{fmt.Errorf("Event %v not found", id)},
-				Message: "Event not found",
-				Payload: nil,
-			})
+		var id *uuid.UUID
+		var event *zyt.Event
+		var err error
+
+		if id, err = ParseUUID("id", r); err != nil {
+			HTTP400(w, "Valid ID is required")
 			return
 		}
 
-		event, err := ec.EventService.ViewEvent(id)
-		if err != nil {
+		if event, err = ec.EventService.ViewEvent(*id); err != nil {
 			ec.logger.Println(err)
-		}
-
-		if event == nil {
-			WriteJSON(w, &zyt.Response{
-				Errors:  []error{fmt.Errorf("Event %v not found", id)},
-				Message: "Event not found",
-				Payload: nil,
-			})
+			HTTP400(w, fmt.Sprintf("Event %s", id))
 			return
 		}
 
-		WriteJSON(w, &zyt.Response{
-			Message: fmt.Sprintf("Event %v", id.String()),
-			Payload: event,
+		HTTP200(w, fmt.Sprintf("Event %v", id.String()), struct {
+			Event *zyt.Event `json:"event"`
+		}{
+			event,
 		})
-		return
 	})
 }
 

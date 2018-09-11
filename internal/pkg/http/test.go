@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/nikovacevic/zyt/internal/app/zyt"
 )
 
@@ -31,19 +30,14 @@ func (tc *TestController) Route(server *Server) {
 // Status returns the API status
 func (tc *TestController) Status() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		WriteJSON(w, &zyt.Response{
-			Errors:  nil,
-			Message: "All good",
-		})
+		HTTP200(w, "All good", nil)
 	}
 }
 
 // Teapot returns the 418 I'm a teapot HTTP status
 func (tc *TestController) Teapot() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusTeapot)
-		WriteJSON(w, &zyt.Response{
+		WriteJSON(w, http.StatusTeapot, &zyt.Response{
 			Errors: []error{
 				fmt.Errorf("I'm a teapot"),
 			},
@@ -59,12 +53,11 @@ func (tc *TestController) Parrot() http.HandlerFunc {
 	// Then the HandlerFunc is returned to run indefinitely
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Quiet! Parrot is talking!\n")
-		vars := mux.Vars(r)
-		payload := vars["message"]
-		WriteJSON(w, &zyt.Response{
-			Errors:  nil,
-			Message: "Parrot is talking",
-			Payload: payload,
-		})
+		var message string
+		var err error
+		if message, err = ParseString("message", r); err != nil {
+			HTTP400(w, "Message required")
+		}
+		HTTP200(w, "Parrot is talking", message)
 	}
 }

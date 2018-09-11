@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 	"github.com/nikovacevic/zyt/internal/app/zyt"
 	"github.com/nikovacevic/zyt/internal/pkg/log"
 )
@@ -33,40 +32,25 @@ func (uc *UserController) Route(server *Server) {
 // ViewUser retrieves and shows an User
 func (uc *UserController) ViewUser() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id, err := uuid.Parse(vars["id"])
-		if err != nil {
-			// Given ID is not a valid UUID
-			uc.logger.Printf("ERROR: failed to parse ID\n")
-			fmt.Println(err)
-			WriteJSON(w, &zyt.Response{
-				Errors:  []error{fmt.Errorf("User %v not found", id)},
-				Message: "User not found",
-				Payload: nil,
-			})
+		var id *uuid.UUID
+		var user *zyt.User
+		var err error
+
+		if id, err = ParseUUID("id", r); err != nil {
+			HTTP400(w, "Valid ID is required")
 			return
 		}
 
-		user, err := uc.UserService.ViewUser(id)
-		if err != nil {
+		if user, err = uc.UserService.ViewUser(*id); err != nil {
 			uc.logger.Println(err)
-		}
-		if user == nil {
-			WriteJSON(w, &zyt.Response{
-				Errors:  []error{fmt.Errorf("User not found")},
-				Message: "User not found",
-				Payload: nil,
-			})
+			HTTP404(w, fmt.Sprintf("User %s", id))
 			return
 		}
-		WriteJSON(w, &zyt.Response{
-			Message: fmt.Sprintf("User %v", id.String()),
-			Payload: struct {
-				User interface{} `json:"user"`
-			}{
-				user,
-			},
+
+		HTTP200(w, fmt.Sprintf("User %v", id.String()), struct {
+			User *zyt.User `json:"user"`
+		}{
+			user,
 		})
-		return
 	})
 }
