@@ -14,6 +14,8 @@ type Event struct {
 	StartTime time.Time     `json:"start_time"`
 	EndTime   time.Time     `json:"end_time"`
 	Duration  time.Duration `json:"duration"`
+	Name      string        `json:"name"`
+	Notes     string        `json:"notes"`
 }
 
 // NewEvent creates a new Event instance
