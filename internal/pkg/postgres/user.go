@@ -1,8 +1,6 @@
 package postgres
 
 import (
-	"fmt"
-
 	"github.com/google/uuid"
 	"github.com/nikovacevic/zyt/internal/app/zyt"
 	"golang.org/x/crypto/bcrypt"
@@ -40,7 +38,7 @@ func (db *DB) ViewUser(id uuid.UUID) (*zyt.User, error) {
 	user := zyt.User{}
 	err := row.Scan(&user.ID, &user.Email)
 	if err != nil {
-		return nil, fmt.Errorf("User not found")
+		return nil, err
 	}
 
 	return &user, nil

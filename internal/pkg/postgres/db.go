@@ -24,9 +24,9 @@ type DB struct {
 }
 
 // GetConfig finds a config file in the given path and constructs a Config
-func GetConfig(path string) (*Config, error) {
+func GetConfig(path, name string) (*Config, error) {
 	v := viper.New()
-	v.SetConfigName("config")
+	v.SetConfigName(name)
 	v.AddConfigPath(path)
 	if err := v.ReadInConfig(); err != nil {
 		return nil, err
